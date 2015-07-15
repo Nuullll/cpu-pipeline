@@ -34,9 +34,8 @@ module ID (
 );
 
 // for WB
-wire ID_MemtoReg;   // 0: ALU, 1: Mem
+wire [1:0] ID_MemtoReg;   // 0: ALU, 1: Mem
 wire ID_RegWrite; 
-wire [4:0] ID_WriteRegister;
 
 // for MEM
 wire ID_MemRead; 
@@ -53,7 +52,7 @@ wire interrupt;
 wire exception;     // Undefined instruction
 wire [2:0] PCSrc;
 wire Branch;
-wire ExtOp;         // Control signal for extender
+wire ExtOp;         // Extend imm16 to imm32
 wire LuOp;
 wire [4:0] ALUOp;
 
@@ -122,7 +121,60 @@ ZeroTest Z1(
     .Z     (Z)
 );
 
+wire [31:0] imm32;
+
+assign imm32 = ExtOp ? {16{instruction[15]}, instruction[15:0]} :
+                       {16'b0, instruction[15:0]};
+
+assign branch_target = PC_plus4 + {imm32[29:0], 2'b00};
+
+assign J = (PCSrc == 3'b001);
+assign jump_target = {PC_plus4[31:28], instruction[25:0], 2'b00};
+
+assign JR = (PCSrc == 3'b010);
+assign jr_target = ID_RsData;
+
+wire bubble;    // Clear control signals in ID_EX
+
+HazardDetector H1(
+    // Input
+    .EX_MemRead      (EX_MemRead),
+    .EX_WriteRegister(EX_WriteRegister),
+    .ID_Rs           (ID_Rs),
+    .ID_Rt           (ID_Rt),
+    // Output
+    .PC_IF_ID_Write  (PC_IF_ID_Write),
+    .bubble          (bubble)
+);
+
+wire [31:0] LuOut;  // Select by LuOp
+
+assign LuOut = LuOp ? {instruction[15:0], 16'b0} : imm32;
+
+// Write to ID_EX
+always @(posedge clk or negedge rst_n) begin
+    if(~rst_n) begin
+        ID_EX <= 0;
+    end else begin
+        ID_EX[31:0] <= ID_RtData;
+        ID_EX[63:32] <= ID_RsData;
+        ID_EX[68:64] <= ID_Rt;
+        ID_EX[73:68] <= ID_Rs;
+        ID_EX[78:74] <= ID_Rd;
+        ID_EX[110:79] <= imm32;
+        ID_EX[142:111] <= LuOut;
+        if(~bubble) begin
+            ID_EX[152:143] <= {ID_ALUFun, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
+            ID_EX[154:153] <= {ID_MemRead, ID_MemWrite};    // for MEM
+            ID_EX[157:155] <= {ID_MemtoReg, ID_RegWrite};   // for WB
+        end else begin
+            ID_EX[157:143] <= 0;
+        end
+    end
+end
+
 endmodule
+
 
 module ZeroTest (
     input [4:0] ALUOp,
@@ -148,5 +200,24 @@ always @(*) begin
         default : Z <= 0;
     endcase
 end
+
+endmodule
+
+
+module HazardDetector (
+    input EX_MemRead,   // Detect lw
+    input [4:0] EX_WriteRegister, 
+    input [4:0] ID_Rs,
+    input [4:0] ID_Rt,
+
+    output PC_IF_ID_Write,
+    output bubble   // Bubble, clear control signals in ID_EX
+);
+
+assign bubble = (EX_MemRead == 1
+                && (EX_WriteRegister == ID_Rs
+                || EX_WriteRegister == ID_Rt));
+
+assign PC_IF_ID_Write = ~bubble;
 
 endmodule

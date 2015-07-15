@@ -39,9 +39,9 @@
 
         - 阻塞`ID`和`IF`阶段的指令
 
-            + `Stall`: 将`ID/EX`寄存器中`EX`,`MEM`和`WB`阶段需要的控制信号**清零**
+            + `bubble`: 将`ID/EX`寄存器中`EX`,`MEM`和`WB`阶段需要的控制信号**清零**
 
-            + `PC_IF_Write`: 禁止`PC`和`IF/ID`寄存器接收新指令
+            + `PC_IF_ID_Write`: 禁止`PC`和`IF/ID`寄存器接收新指令
 
 ### `EX` (Execute)
 
