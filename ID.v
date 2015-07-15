@@ -3,8 +3,13 @@
 module ID (
     input clk,    // Clock
     input rst_n,  // Asynchronous reset active low
-    input instruction,  // Get instruction from IF_ID[31:0]
-    input PC_plus4,     // Get PC+4 from IF_ID[63:32]
+
+    input uart_signal,  // 1: there is new data from uart
+    input uart_flag,    // 0: uart_register1, 1: uart_register2
+    input [7:0] uart_rx_data,   // Data from uart
+
+    input [31:0] instruction,   // Get instruction from IF_ID[31:0]
+    input [31:0] PC_plus4,      // Get PC+4 from IF_ID[63:32]
     
     input RegWrite,     // From WB_RegWrite
     input [4:0] WriteRegister,  // From WB_WriteRegister
@@ -12,6 +17,9 @@ module ID (
 
     input EX_MemRead,   // Input for hazard unit to detect hazard
     input [4:0] EX_WriteRegister,   // Input for hazard unit to detect hazard
+
+    // Output for uart
+    output [7:0] uart_result_data,
 
     // Output for IF
     output Z,   // Whether goto branch target
@@ -50,7 +58,15 @@ wire LuOp;
 wire [4:0] ALUOp;
 
 // for Register
+wire [4:0] ID_Rd;
+wire [4:0] ID_Rs; 
+wire [4:0] ID_Rt; 
+wire [31:0] ID_RsData;
+wire [31:0] ID_RtData;
 
+assign ID_Rd = instruction[15:11];
+assign ID_Rs = instruction[25:21];
+assign ID_Rt = instruction[20:16];
 
 Control C1(
     // Input
@@ -73,7 +89,29 @@ Control C1(
     .ALUOp      (ALUOp)
 );
 
-
+RegisterFile R1(
+    // Input
+    .reset          (rst_n),
+    .clk            (clk),
+    .stall          (interrupt),
+    .UI             (exception),
+    .signal         (uart_signal),
+    .flag           (uart_flag),
+    .rx_data        (uart_rx_data),
+    .RegWrite       (RegWrite),
+    .Read_register1 (ID_Rs),
+    .Read_register2 (ID_Rt),
+    .Write_register1(WriteRegister),
+    .Write_register2(5'd26),
+    .Write_register3(5'd26),
+    .Write_data1    (RegWriteData),
+    .Write_data2    (PC_plus4 - 4),
+    .Write_data3    (PC_plus4),
+    // Output
+    .Read_data1     (ID_RsData),
+    .Read_data2     (ID_RtData),
+    .result_data    (uart_result_data)
+);
 
 endmodule
 
