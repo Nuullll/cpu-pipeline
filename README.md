@@ -114,45 +114,47 @@
 
 ### `cpu_pipeline.v`
 
-    ```verilog
-    module cpu_pipeline (
-        input clk,          // System Clock
-        input rst_n,        // Asynchronous reset active low
-        input uart_rx,      // UART receive data
+```verilog
+module cpu_pipeline (
+    input clk,          // System Clock
+    input rst_n,        // Asynchronous reset active low
+    input uart_rx,      // UART receive data
 
-        output uart_tx,     // UART transmit data
-        output [7:0] led,   // Result
-        output [6:0] digi1, // part I of operand1
-        output [6:0] digi2, // part II of operand1
-        output [6:0] digi3, // part I of operand2
-        output [6:0] digi4  // part II of operand2
-    );
-    ```
+    output uart_tx,     // UART transmit data
+    output [7:0] led,   // Result
+    output [6:0] digi1, // part I of operand1
+    output [6:0] digi2, // part II of operand1
+    output [6:0] digi3, // part I of operand2
+    output [6:0] digi4  // part II of operand2
+);
+```
 
 ### `IF.v`
 
-    - `IF/ID`结构
-
-        ```verilog
-        // 64 bits
-        // enable: PC_IF_ID_Write
-        // reset: flush_IF_ID
-
-        IF_ID[63:32] <= PC_plus4;
-        IF_ID[31:0] <= instruction;
-        ```
+- `IF/ID`结构
 
     ```verilog
-    module IF (
-        input clk,      // Clock
-        input rst_n,    // Asynchronous reset active low
-        input PC_IF_ID_Write,          // Whether PC and IF_ID can be changed
-        input [31:0] branch_target,
-        input [31:0] jump_target,   
-        input [31:0] jr_target,     
-        input [2:0] select_PC_next, // {Z, J, Jr} to select next PC
-        input [1:0] status,         // 00: normal, 01: Reset, 10: Interrupt, 11: Exception
-        
-        output reg [63:0] IF_ID     // Register between IF and ID stage
-    );
+    // 64 bits
+    // enable: PC_IF_ID_Write
+    // reset: flush_IF_ID
+
+    IF_ID[63:32] <= PC_plus4;
+    IF_ID[31:0] <= instruction;
     ```
+
+- 接口
+
+```verilog
+module IF (
+    input clk,      // Clock
+    input rst_n,    // Asynchronous reset active low
+    input PC_IF_ID_Write,          // Whether PC and IF_ID can be changed
+    input [31:0] branch_target,
+    input [31:0] jump_target,   
+    input [31:0] jr_target,     
+    input [2:0] select_PC_next, // {Z, J, Jr} to select next PC
+    input [1:0] status,         // 00: normal, 01: Reset, 10: Interrupt, 11: Exception
+    
+    output reg [63:0] IF_ID     // Register between IF and ID stage
+);
+```
