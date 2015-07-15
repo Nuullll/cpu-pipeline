@@ -7,7 +7,7 @@
 
 - 从`InstructionMemory`(`ROM`)中抓取指令
 
-- 在下个时钟沿将**指令**和**当前**`PC`写入`IF/ID`寄存器
+- 在下个时钟沿将**指令**和`PC+4`写入`IF/ID`寄存器
 
 ### `ID` (Instruction Decode)
 
@@ -21,7 +21,7 @@
 
 - 判断分支指令跳转条件
 
-    + 跳转时通过`flush_IF`控制信号清空`IF/ID`寄存器(即丢弃上一条指令)
+    + 跳转时通过`flush_IF_ID`控制信号清空`IF/ID`寄存器(即丢弃上一条指令)
 
 - 进行**冒险检测**
 
@@ -114,14 +114,12 @@
 
 ### `cpu_pipeline.v`
 
-- 顶层模块
-
     ```verilog
     module cpu_pipeline (
         input clk,          // System Clock
         input rst_n,        // Asynchronous reset active low
         input uart_rx,      // UART receive data
-        
+
         output uart_tx,     // UART transmit data
         output [7:0] led,   // Result
         output [6:0] digi1, // part I of operand1
@@ -131,3 +129,30 @@
     );
     ```
 
+### `IF.v`
+
+    - `IF/ID`结构
+
+        ```verilog
+        // 64 bits
+        // enable: PC_IF_ID_Write
+        // reset: flush_IF_ID
+
+        IF_ID[63:32] <= PC_plus4;
+        IF_ID[31:0] <= instruction;
+        ```
+
+    ```verilog
+    module IF (
+        input clk,      // Clock
+        input rst_n,    // Asynchronous reset active low
+        input PC_IF_ID_Write,          // Whether PC and IF_ID can be changed
+        input [31:0] branch_target,
+        input [31:0] jump_target,   
+        input [31:0] jr_target,     
+        input [2:0] select_PC_next, // {Z, J, Jr} to select next PC
+        input [1:0] status,         // 00: normal, 01: Reset, 10: Interrupt, 11: Exception
+        
+        output reg [63:0] IF_ID     // Register between IF and ID stage
+    );
+    ```
