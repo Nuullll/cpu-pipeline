@@ -26,7 +26,7 @@ InstructionMemory ROM(
 );
 
 // whether to flush IF_ID
-assign flush_IF_ID = (select_PC_next[2]) ? 1 : 0;
+assign flush_IF_ID = select_PC_next[2];
 
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
