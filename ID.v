@@ -22,7 +22,67 @@ module ID (
     output [31:0] jump_target, 
     output [31:0] jr_target,
 
-    output ID_EX
+    output [:0] ID_EX
+);
+
+// for WB
+wire ID_MemtoReg;   // 0: ALU, 1: Mem
+wire ID_RegWrite; 
+wire [4:0] ID_WriteRegister;
+
+// for MEM
+wire ID_MemRead; 
+wire ID_MemWrite;
+
+// for EX
+wire [5:0] ID_ALUFun;
+wire ID_ALUSrc1;
+wire ID_ALUSrc2;
+wire [1:0] ID_RegDst;   // Target register to write; 00: rd, 01: rt, 10: ra, 11: k0
+
+// for Control
+wire interrupt;
+wire exception;     // Undefined instruction
+wire [2:0] PCSrc;
+wire Branch;
+wire ExtOp;         // Control signal for extender
+wire LuOp;
+wire [4:0] ALUOp;
+
+// for Register
+
+
+Control C1(
+    // Input
+    .PCH        (PC_plus4[31]), 
+    .Instruction(instruction), 
+    .stall      (interrupt), 
+    // Output
+    .UI         (exception),
+    .PCSrc      (PCSrc),
+    .Branch     (Branch),
+    .RegWrite   (ID_RegWrite),
+    .RegDst     (ID_RegDst),
+    .MemRead    (ID_MemRead),
+    .MemWrite   (ID_MemWrite),
+    .MemtoReg   (ID_MemtoReg),
+    .ALUSrc1    (ID_ALUSrc1),
+    .ALUSrc2    (ID_ALUSrc2),
+    .ExtOp      (ExtOp),
+    .LuOp       (LuOp),
+    .ALUOp      (ALUOp)
+);
+
+
+
+endmodule
+
+module ZeroTest (
+    input [4:0] ALUOp,
+    input [31:0] ID_RtData,
+    input [31:0] ID_RsData,
+
+    output Z    // 1: goto branch target
 );
 
 endmodule
