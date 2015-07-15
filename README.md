@@ -27,7 +27,7 @@
 
     + 需求
 
-        - 上一条指令的`MEMRead`
+        - `EX_MemRead`: 上一条指令的`MemRead`
 
     + 冒险条件成立时产生`stall`信号, 清空`ID/EX`, 插入一个流水线气泡
 
