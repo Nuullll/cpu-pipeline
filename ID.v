@@ -113,12 +113,21 @@ RegisterFile R1(
     .result_data    (uart_result_data)
 );
 
+ZeroTest Z1(
+    // Input
+    .ALUOp (ALUOp),
+    .RsData(ID_RsData),
+    .RtData(ID_RtData),
+    // Output
+    .Z     (Z)
+);
+
 endmodule
 
 module ZeroTest (
     input [4:0] ALUOp,
-    input [31:0] ID_RsData,
-    input [31:0] ID_RtData,
+    input [31:0] RsData,
+    input [31:0] RtData,
 
     output reg Z    // 1: goto branch target
 );
@@ -126,16 +135,16 @@ module ZeroTest (
 wire eq;    // 1: if RsData == RtData
 wire zero;  // 1: if RsData == 0
 
-assign eq = (ID_RsData == ID_RtData);
-assign zero = (ID_RsData == 32'b0);
+assign eq = (RsData == RtData);
+assign zero = (RsData == 32'b0);
 
 always @(*) begin
     case (ALUop[3:0])
         4'b0001 : Z <= eq;  // beq
         4'b0011 : Z <= ~eq; // bne
-        4'b0110 : Z <= ID_RsData[31] | zero;    // blez
-        4'b0111 : Z <= ~ID_RsData[31] & ~zero;  // bgtz
-        4'b1000 : Z <= ~ID_RsData[31] | zero;   // bgez
+        4'b0110 : Z <= RsData[31] | zero;    // blez
+        4'b0111 : Z <= ~RsData[31] & ~zero;  // bgtz
+        4'b1000 : Z <= ~RsData[31] | zero;   // bgez
         default : Z <= 0;
     endcase
 end
