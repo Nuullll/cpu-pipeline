@@ -121,6 +121,7 @@
         input clk,          // System Clock
         input rst_n,        // Asynchronous reset active low
         input uart_rx,      // UART receive data
+        
         output uart_tx,     // UART transmit data
         output [7:0] led,   // Result
         output [6:0] digi1, // part I of operand1
@@ -130,4 +131,3 @@
     );
     ```
 
-    
