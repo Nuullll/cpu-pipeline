@@ -40,8 +40,8 @@ always @(posedge clk or negedge rst_n) begin
                 3'b000  : begin     // not branch, not j, not jr
                     case (status)
                         2'b00   : PC <= PC_plus4;
-                        2'b10   : PC <= 32'h4;  // Interrupt
-                        2'b01   : PC <= 32'h8;  // Exception
+                        2'b10   : PC <= 32'h8000_0004;  // Interrupt
+                        2'b01   : PC <= 32'h8000_0008;  // Exception
                         default : PC <= 32'hffff_ffff;  // Unexpected behavior
                     endcase
                 end
