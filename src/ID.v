@@ -139,7 +139,7 @@ wire [31:0] imm32;
 wire [31:0] LuOut;  // Select by LuOp
 wire [31:0] shamt32;
 
-assign imm32 = ExtOp ? {16{instruction[15]}, instruction[15:0]} :
+assign imm32 = ExtOp ? {{16{instruction[15]}}, instruction[15:0]} :
                        {16'b0, instruction[15:0]};
 assign LuOut = LuOp ? {instruction[15:0], 16'b0} : imm32;
 assign shamt32 = {27'b0, instruction[10:6]};                       
@@ -206,7 +206,7 @@ assign eq = (RsData == RtData);
 assign zero = (RsData == 32'b0);
 
 always @(*) begin
-    case (ALUop[3:0])
+    case (ALUOp[3:0])
         4'b0001 : Z <= eq;  // beq
         4'b0011 : Z <= ~eq; // bne
         4'b0110 : Z <= RsData[31] | zero;    // blez
