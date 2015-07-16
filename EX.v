@@ -30,6 +30,7 @@ module EX (
 
     // Pass from ID_EX to EX_MEM
     input EX_MemWrite;          // From ID_EX[154]
+    input EX_MemRead;           // From ID_EX[155]
     input EX_RegWrite;          // From ID_EX[156]
     input [1:0] EX_MemtoReg;    // From ID_EX[158:157]
     input [31:0] PC_plus4;      // From ID_EX[190:159]
@@ -38,7 +39,7 @@ module EX (
     // output EX_MemRead,          // From ID_EX[155]
     output [4:0] EX_WriteRegister,
 
-    output [104:0] EX_MEM
+    output [105:0] EX_MEM
 );
 
 wire [1:0] forward1, forward2;
@@ -97,9 +98,9 @@ always @(posedge clk or negedge rst_n) begin
         EX_MEM[31:0] <= EX_MemWriteData;
         EX_MEM[63:32] <= EX_ALUResult;
         EX_MEM[68:64] <= EX_WriteRegister;
-        EX_MEM[69] <= EX_MemWrite;  // For MEM
-        EX_MEM[72:70] <= {EX_MemtoReg, EX_RegWrite};    // For WB
-        EX_MEM[104:73] <= PC_plus4; // For jal
+        EX_MEM[70:69] <= {EX_MemWrite, EX_MemRead};     // For MEM
+        EX_MEM[73:71] <= {EX_MemtoReg, EX_RegWrite};    // For WB
+        EX_MEM[105:74] <= PC_plus4; // For jal
     end
 end
 
