@@ -4,7 +4,8 @@ module EX (
     input clk,    // Clock
     input rst_n,  // Asynchronous reset active low
 
-    input [5:0] EX_ALUFun,  // From ID_EX[152:147]; Select ALU operation type
+    input [5:0] EX_ALUCtl,  // From ID_EX[153:148]; Select ALU operation type
+    input EX_ALUSign,       // From ID_EX[147]
     input EX_ALUSrc1,       // From ID_EX[146]
     input EX_ALUSrc2,       // From ID_EX[145]
     input [1:0] EX_RegDst,  // From ID_EX[144:143]; 00: rt, 01: rd, 10: ra, 11: k0
@@ -47,7 +48,23 @@ Forward F1(
     .forward2         (forward2)
 );
 
+wire [31:0] A, B;   // 2 operands after forwarding; NOT final operands of ALU
 
+assign A = (forward1 == 2'b00) ? EX_RsData : 
+           (forward1 == 2'b01) ? MEM_RegWriteData :
+           (forward1 == 2'b10) ? WB_RegWriteData : 0;
+assign B = (forward2 == 2'b00) ? EX_RtData :
+           (forward2 == 2'b01) ? MEM_RegWriteData :
+           (forward2 == 2'b10) ? WB_RegWriteData : 0;
+
+wire [31:0] operand1, operand2;     // 2 final operands of ALU
+
+assign operand1 = (EX_ALUSrc1) ? EX_Shamt32 : A;    // Shift or not
+assign operand2 = (EX_ALUSrc2) ? EX_LuOut : B;
+
+wire [31:0] EX_MemWriteData;    // Ready to store into EX_MEM
+
+assign EX_MemWriteData = B;
 
 endmodule
 

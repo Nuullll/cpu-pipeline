@@ -32,7 +32,7 @@ module ID (
     output interrupt,
     output exception,
 
-    output reg [157:0] ID_EX
+    output reg [158:0] ID_EX
 );
 
 // for WB
@@ -44,7 +44,8 @@ wire ID_MemRead;
 wire ID_MemWrite;
 
 // for EX
-wire [5:0] ID_ALUFun;
+wire [5:0] ID_ALUCtl;
+wire ID_ALUSign;        // Whether operation is signed or unsigned
 wire ID_ALUSrc1;
 wire ID_ALUSrc2;
 wire [1:0] ID_RegDst;   // Target register to write; 00: rt, 01: rd, 10: ra, 11: k0
@@ -86,6 +87,15 @@ Control C1(
     .ExtOp      (ExtOp),
     .LuOp       (LuOp),
     .ALUOp      (ALUOp)
+);
+
+ALUControl AC1(
+    // Input
+    .ALUOp (ALUOp),
+    .Funct (instruction[5:0]),
+    // Output
+    .ALUCtl(ID_ALUCtl),
+    .Sign  (ID_ALUSign)
 );
 
 RegisterFile R1(
@@ -164,11 +174,11 @@ always @(posedge clk or negedge rst_n) begin
         ID_EX[110:79] <= LuOut;
         ID_EX[142:111] <= shamt32;
         if(~bubble) begin
-            ID_EX[152:143] <= {ID_ALUFun, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
-            ID_EX[154:153] <= {ID_MemRead, ID_MemWrite};    // for MEM
-            ID_EX[157:155] <= {ID_MemtoReg, ID_RegWrite};   // for WB
+            ID_EX[153:143] <= {ID_ALUCtl, ID_ALUSign, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
+            ID_EX[155:154] <= {ID_MemRead, ID_MemWrite};    // for MEM
+            ID_EX[158:156] <= {ID_MemtoReg, ID_RegWrite};   // for WB
         end else begin
-            ID_EX[157:143] <= 0;
+            ID_EX[158:143] <= 0;
         end
     end
 end
