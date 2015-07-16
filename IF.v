@@ -21,7 +21,9 @@ wire flush_IF_ID;               // whether to flush IF_ID
 assign PC_plus4 = {PC[31], PC[30:0] + 4};   // keep PC[31]
 
 InstructionMemory ROM(
+    // Input
     .Address    (PC),
+    // Output
     .Instruction(instruction)
 );
 
