@@ -18,7 +18,8 @@ wire [31:0] PC_plus4;
 wire [31:0] instruction;
 wire flush_IF_ID;               // whether to flush IF_ID
 
-assign PC_plus4 = {PC[31], PC[30:0] + 31'd4};   // keep PC[31]
+// If status is not normal, PC_plus4[31] should be 1
+assign PC_plus4 = {(|status)|PC[31], PC[30:0] + 31'd4};   // keep PC[31]
 
 InstructionMemory ROM(
     // Input
@@ -27,8 +28,9 @@ InstructionMemory ROM(
     .Instruction(instruction)
 );
 
-// whether to flush IF_ID
-assign flush_IF_ID = |select_PC_next;   // Z || J || JR
+// Whether to flush IF_ID
+// Flush if Z || J || JR and status == 2'b00
+assign flush_IF_ID = (|select_PC_next) & ~(|status);
 
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
@@ -36,18 +38,18 @@ always @(posedge clk or negedge rst_n) begin
         IF_ID <= 0;
     end else begin
         if(PC_IF_ID_Write) begin   // enable to write PC and IF_ID
-            case (select_PC_next)
-                3'b000  : begin     // not branch, not j, not jr
-                    case (status)
-                        2'b00   : PC <= PC_plus4;
-                        2'b10   : PC <= 32'h8000_0004;  // Interrupt
-                        2'b01   : PC <= 32'h8000_0008;  // Exception
+            case (status)
+                2'b00   : begin
+                    case (select_PC_next)
+                        3'b000  : PC <= PC_plus4;
+                        3'b100  : PC <= branch_target;  // branch
+                        3'b010  : PC <= jump_target;    // j
+                        3'b001  : PC <= jr_target;      // jr
                         default : PC <= 32'hffff_ffff;  // Unexpected behavior
                     endcase
                 end
-                3'b100  : PC <= branch_target;  // branch
-                3'b010  : PC <= jump_target;    // j
-                3'b001  : PC <= jr_target;      // jr
+                2'b10   : PC <= 32'h8000_0004;  // Interrupt
+                2'b01   : PC <= 32'h8000_0008;  // Exception
                 default : PC <= 32'hffff_ffff;  // Unexpected behavior
             endcase
 
