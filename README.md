@@ -200,7 +200,7 @@ module cpu_pipeline (
         input [4:0] WB_WriteRegister,   // From WB_WriteRegister
         input [31:0] WB_RegWriteData,   // From WB_RegWriteData
 
-        input EX_MemRead,   // Input for hazard unit to detect hazard
+        // input EX_MemRead,   // Input for hazard unit to detect hazard
         input [4:0] EX_WriteRegister,   // Input for hazard unit to detect hazard
 
         // Output for uart
@@ -218,5 +218,63 @@ module cpu_pipeline (
         output exception,
 
         output reg [189:0] ID_EX
+    );
+    ```
+
+### `EX.v`
+
+- `EX_MEM`结构
+
+    ```verilog
+    // 73 bits
+
+    EX_MEM[31:0] <= EX_MemWriteData;
+    EX_MEM[63:32] <= EX_ALUResult;
+    EX_MEM[68:64] <= EX_WriteRegister;
+    EX_MEM[69] <= EX_MemWrite;  // For MEM
+    EX_MEM[72:70] <= {EX_RegWrite, EX_MemtoReg};    // For WB
+    ```
+
+- 接口
+
+    ```verilog
+    module EX (
+        input clk,    // Clock
+        input rst_n,  // Asynchronous reset active low
+
+        input [5:0] EX_ALUCtl,  // From ID_EX[153:148]; Select ALU operation type
+        input EX_ALUSign,       // From ID_EX[147]
+        input EX_ALUSrc1,       // From ID_EX[146]
+        input EX_ALUSrc2,       // From ID_EX[145]
+        input [1:0] EX_RegDst,  // From ID_EX[144:143]; 00: rt, 01: rd, 10: ra, 11: k0
+
+        input [31:0] EX_Shamt32,    // From ID_EX[142:111]
+        input [31:0] EX_LuOut,      // From ID_EX[110:79]
+
+        input [4:0] EX_Rd,      // From ID_EX[78:74]
+        input [4:0] EX_Rs,      // From ID_EX[73:69]
+        input [4:0] EX_Rt,      // From ID_EX[68:64]
+
+        input [31:0] EX_RsData, // From ID_EX[63:32]
+        input [31:0] EX_RtData, // From ID_EX[31:0]
+
+        // Input for forward
+        input MEM_RegWrite,
+        input [4:0] MEM_WriteRegister,
+        input [31:0] MEM_RegWriteData,
+        input WB_RegWrite,
+        input [4:0] WB_WriteRegister, 
+        input [31:0] WB_RegWriteData,
+
+        // Pass from ID_EX to EX_MEM
+        input EX_MemWrite;          // From ID_EX[154]
+        input EX_RegWrite;          // From ID_EX[156]
+        input [1:0] EX_MemtoReg;    // From ID_EX[158:157]
+
+        // Output for ID
+        // output EX_MemRead,          // From ID_EX[155]
+        output [4:0] EX_WriteRegister,
+
+        output [72:0] EX_MEM
     );
     ```
