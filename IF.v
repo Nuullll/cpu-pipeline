@@ -8,7 +8,7 @@ module IF (
     input [31:0] jump_target,   
     input [31:0] jr_target,     
     input [2:0] select_PC_next, // {Z, J, Jr} to select next PC
-    input [1:0] status,         // 00: normal, 01: Reset, 10: Interrupt, 11: Exception
+    input [1:0] status,         // {interrupt, exception}
     
     output reg [63:0] IF_ID     // Register between IF and ID stage
 );
@@ -38,9 +38,8 @@ always @(posedge clk or negedge rst_n) begin
                 3'b000  : begin     // not branch, not j, not jr
                     case (status)
                         2'b00   : PC <= PC_plus4;
-                        2'b01   : PC <= 32'b0;  // Reset
                         2'b10   : PC <= 32'h4;  // Interrupt
-                        2'b11   : PC <= 32'h8;  // Exception
+                        2'b01   : PC <= 32'h8;  // Exception
                         default : PC <= 32'hffff_ffff;  // Unexpected behavior
                     endcase
                 end
