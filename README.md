@@ -153,7 +153,7 @@ module cpu_pipeline (
         input [31:0] jump_target,   
         input [31:0] jr_target,     
         input [2:0] select_PC_next, // {Z, J, Jr} to select next PC
-        input [1:0] status,         // 00: normal, 01: Reset, 10: Interrupt, 11: Exception
+        input [1:0] status,         // {interrupt, exception}
         
         output reg [63:0] IF_ID     // Register between IF and ID stage
     );
@@ -164,7 +164,7 @@ module cpu_pipeline (
 - `ID_EX`结构
 
     ```verilog
-    // 158 bits
+    // 191 bits
     // reset [158:143]: bubble
 
     ID_EX[31:0] <= ID_RtData;
@@ -180,6 +180,8 @@ module cpu_pipeline (
     ID_EX[155:154] <= {ID_MemRead, ID_MemWrite};    // for MEM
 
     ID_EX[158:156] <= {ID_MemtoReg, ID_RegWrite};   // for WB
+
+    ID_EX[190:159] <= PC_plus4;     // For jal
     ```
 
 - 接口
@@ -217,7 +219,7 @@ module cpu_pipeline (
         output interrupt,
         output exception,
 
-        output reg [189:0] ID_EX
+        output reg [190:0] ID_EX
     );
     ```
 
@@ -226,13 +228,14 @@ module cpu_pipeline (
 - `EX_MEM`结构
 
     ```verilog
-    // 73 bits
+    // 106 bits
 
     EX_MEM[31:0] <= EX_MemWriteData;
     EX_MEM[63:32] <= EX_ALUResult;
     EX_MEM[68:64] <= EX_WriteRegister;
-    EX_MEM[69] <= EX_MemWrite;  // For MEM
-    EX_MEM[72:70] <= {EX_MemtoReg, EX_RegWrite};    // For WB
+    EX_MEM[70:69] <= {EX_MemWrite, EX_MemRead};     // For MEM
+    EX_MEM[73:71] <= {EX_MemtoReg, EX_RegWrite};    // For WB
+    EX_MEM[105:74] <= PC_plus4; // For jal
     ```
 
 - 接口
@@ -267,14 +270,56 @@ module cpu_pipeline (
         input [31:0] WB_RegWriteData,
 
         // Pass from ID_EX to EX_MEM
-        input EX_MemWrite;          // From ID_EX[154]
-        input EX_RegWrite;          // From ID_EX[156]
-        input [1:0] EX_MemtoReg;    // From ID_EX[158:157]
+        input EX_MemWrite,          // From ID_EX[154]
+        input EX_MemRead,           // From ID_EX[155]
+        input EX_RegWrite,          // From ID_EX[156]
+        input [1:0] EX_MemtoReg,    // From ID_EX[158:157]
+        input [31:0] PC_plus4,      // From ID_EX[190:159]
 
         // Output for ID
         // output EX_MemRead,          // From ID_EX[155]
         output [4:0] EX_WriteRegister,
 
-        output [72:0] EX_MEM
+        output [105:0] EX_MEM
+    );
+    ```
+
+### `MEM.v`
+
+- `MEM_WB`结构
+
+    ```verilog
+    // 104 bits
+
+    MEM_WB[31:0] <= MEM_ALUResult;
+    MEM_WB[63:32] <= MEM_ReadData;
+    MEM_WB[68:64] <= MEM_WriteRegister;
+    MEM_WB[71:69] <= {MEM_MemtoReg, MEM_RegWrite};
+    MEM_WB[103:72] <= PC_plus4;
+    ```
+
+- 接口
+
+    ```verilog
+    module MEM (
+        input clk,    // Clock
+        input rst_n,  // Asynchronous reset active low
+        
+        input MEM_MemWrite,         // From EX_MEM[70]
+        input MEM_MemRead,          // From EX_MEM[69]
+        input [31:0] MEM_ALUResult, // From EX_MEM[63:32]
+        input [31:0] MEM_WriteData, // From EX_MEM[31:0]
+
+        // Pass from EX_MEM to MEM_WB
+        input [31:0] PC_plus4,      // From EX_MEM[105:74]
+        input [1:0] MEM_MemtoReg,   // From EX_MEM[73:72]
+        input MEM_RegWrite,         // From EX_MEM[71]
+        input [4:0] MEM_WriteRegister,  // From EX_MEM[68:64]
+
+        output result_start,        // For uart, to receive result
+        output [7:0] led,
+        output [11:0] digi,
+
+        output [103:0] MEM_WB
     );
     ```
