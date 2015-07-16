@@ -232,7 +232,7 @@ module cpu_pipeline (
     EX_MEM[63:32] <= EX_ALUResult;
     EX_MEM[68:64] <= EX_WriteRegister;
     EX_MEM[69] <= EX_MemWrite;  // For MEM
-    EX_MEM[72:70] <= {EX_RegWrite, EX_MemtoReg};    // For WB
+    EX_MEM[72:70] <= {EX_MemtoReg, EX_RegWrite};    // For WB
     ```
 
 - 接口
