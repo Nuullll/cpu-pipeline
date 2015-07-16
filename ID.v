@@ -161,7 +161,7 @@ always @(posedge clk or negedge rst_n) begin
         ID_EX[31:0] <= ID_RtData;
         ID_EX[63:32] <= ID_RsData;
         ID_EX[68:64] <= ID_Rt;
-        ID_EX[73:68] <= ID_Rs;
+        ID_EX[73:69] <= ID_Rs;
         ID_EX[78:74] <= ID_Rd;
         ID_EX[110:79] <= imm32;
         ID_EX[142:111] <= shamt32;
