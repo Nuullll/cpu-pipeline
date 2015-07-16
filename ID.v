@@ -30,7 +30,7 @@ module ID (
     output [31:0] jump_target, 
     output [31:0] jr_target,
 
-    output [:0] ID_EX
+    output [157:0] ID_EX
 );
 
 // for WB
