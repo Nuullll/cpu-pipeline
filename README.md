@@ -1,4 +1,4 @@
-# cpu-pipeline
+# cpu-pipeline **完结**
 数字逻辑与处理器基础夏季学期 - **CPU流水线**
 
 ## 流水线结构
