@@ -10,7 +10,7 @@ module IF (
     input [2:0] select_PC_next, // {Z, J, JR} to select next PC
     input [1:0] status,         // {interrupt, exception}
     
-    output reg [63:0] IF_ID     // Register between IF and ID stage
+    output reg [95:0] IF_ID     // Register between IF and ID stage
 );
 
 reg [31:0] PC;
@@ -53,8 +53,8 @@ always @(posedge clk or negedge rst_n) begin
                 default : PC <= 32'hffff_ffff;  // Unexpected behavior
             endcase
 
-            if(flush_IF_ID) IF_ID <= 0;
-            else IF_ID <= {PC_plus4, instruction};
+            if(flush_IF_ID) IF_ID <= {IF_ID[63:32], 64'd0};
+            else IF_ID <= {IF_ID[63:32], PC_plus4, instruction};
         end else if(flush_IF_ID) IF_ID <= 0;
     end
 end

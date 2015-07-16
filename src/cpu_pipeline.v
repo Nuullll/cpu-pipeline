@@ -13,7 +13,7 @@ module cpu_pipeline (
     output [6:0] digi4  // part II of operand2
 );
 
-wire [63:0] IF_ID;
+wire [95:0] IF_ID;
 wire [190:0] ID_EX;
 wire [105:0] EX_MEM;
 wire [103:0] MEM_WB;
@@ -85,6 +85,7 @@ ID ID1(
     .irq              (irq),
     .instruction      (IF_ID[31:0]),
     .PC_plus4         (IF_ID[63:32]),
+    .last_PC_plus4    (IF_ID[95:64]),
     .WB_WriteRegister (MEM_WB[68:64]),
     .WB_RegWrite      (MEM_WB[69]),
     .WB_RegWriteData  (WB_RegWriteData),

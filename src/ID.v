@@ -10,6 +10,7 @@ module ID (
 
     input [31:0] instruction,   // Get instruction from IF_ID[31:0]
     input [31:0] PC_plus4,      // Get PC+4 from IF_ID[63:32]
+    input [31:0] last_PC_plus4, 
     
     input WB_RegWrite,          // From WB_RegWrite
     input [4:0] WB_WriteRegister,   // From WB_WriteRegister
@@ -123,7 +124,7 @@ RegisterFile R1(
     .Write_register2(5'd26),    // $k0
     .Write_register3(5'd26),    // $k0
     .Write_data1    (WB_RegWriteData),
-    .Write_data2    (PC_plus4 + 32'hffff_fffc),     // PC_plus4 - 4
+    .Write_data2    (last_PC_plus4 + 32'hffff_fffc),     // PC_plus4 - 4
     .Write_data3    (PC_plus4),
     // Output
     .Read_data1     (ID_RsData),
