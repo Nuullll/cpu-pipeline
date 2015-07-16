@@ -53,9 +53,9 @@ always @(posedge clk or negedge rst_n) begin
                 default : PC <= 32'hffff_ffff;  // Unexpected behavior
             endcase
 
-            if(flush_IF_ID) IF_ID <= 0;
+            if(flush_IF_ID) IF_ID <= {PC_plus4, 32'd0};
             else IF_ID <= {PC_plus4, instruction};
-        end else if(flush_IF_ID) IF_ID <= 0;
+        end else if(flush_IF_ID) IF_ID <= {PC_plus4, 32'd0};
     end
 end
 
