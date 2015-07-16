@@ -17,6 +17,7 @@ module ID (
 
     // input EX_MemRead,   // Input for hazard unit to detect hazard
     input [4:0] EX_WriteRegister,   // Input for hazard unit to detect hazard
+    input [31:0] EX_ALUResult,      // Input for ID-forward
 
     input irq,      // Interrupt request from MEM
 
