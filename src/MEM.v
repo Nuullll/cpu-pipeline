@@ -20,7 +20,7 @@ module MEM (
     output [7:0] led,
     output [11:0] digi,
 
-    output [103:0] MEM_WB
+    output reg [103:0] MEM_WB
 );
 
 wire [31:0] MEM_ReadData;
