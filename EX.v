@@ -29,11 +29,11 @@ module EX (
     input [31:0] WB_RegWriteData,
 
     // Pass from ID_EX to EX_MEM
-    input EX_MemWrite;          // From ID_EX[154]
-    input EX_MemRead;           // From ID_EX[155]
-    input EX_RegWrite;          // From ID_EX[156]
-    input [1:0] EX_MemtoReg;    // From ID_EX[158:157]
-    input [31:0] PC_plus4;      // From ID_EX[190:159]
+    input EX_MemWrite,          // From ID_EX[154]
+    input EX_MemRead,           // From ID_EX[155]
+    input EX_RegWrite,          // From ID_EX[156]
+    input [1:0] EX_MemtoReg,    // From ID_EX[158:157]
+    input [31:0] PC_plus4,      // From ID_EX[190:159]
 
     // Output for ID
     // output EX_MemRead,          // From ID_EX[155]
