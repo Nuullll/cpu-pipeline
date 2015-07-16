@@ -29,7 +29,7 @@
 
         - `EX_MemRead`: 上一条指令的`MemRead`
 
-    + 冒险条件成立时产生`stall`信号, 清空`ID/EX`, 插入一个流水线气泡
+    + 冒险条件成立时产生`bubble`信号, 清空`ID/EX`, 插入一个流水线气泡
 
         - 冒险条件(同时满足以下两条则冒险成立)
 
@@ -317,6 +317,7 @@ module cpu_pipeline (
         input [4:0] MEM_WriteRegister,  // From EX_MEM[68:64]
 
         output result_start,        // For uart, to receive result
+        output irqout,
         output [7:0] led,
         output [11:0] digi,
 
@@ -387,7 +388,7 @@ UART UART1(
     .rx_data     (uart_rx_data),
     .flag        (uart_flag),
     .signal      (uart_signal),
-    .UART_TX     (uart_tx),
+    .UART_TX     (uart_tx)
 );
 
 wire [4:0] EX_WriteRegister;
@@ -401,6 +402,8 @@ assign WB_RegWriteData = (WB_MemtoReg == 2'b00) ? MEM_WB[31:0] :    // MEM_ALURe
                          (WB_MemtoReg == 2'b10) ? MEM_WB[103:72] :  // PC_plus4, jal
                          32'hffffffff;  // Unexpected behavior
 
+wire irq;   // Interrupt request from MEM
+
 ID ID1(
     // Input
     .clk             (clk),
@@ -408,6 +411,7 @@ ID ID1(
     .uart_signal     (uart_signal),
     .uart_flag       (uart_flag),
     .uart_rx_data    (uart_rx_data),
+    .irq             (irq),
     .instruction     (IF_ID[31:0]),
     .PC_plus4        (IF_ID[63:32]),
     .WB_WriteRegister(MEM_WB[68:64]),
@@ -423,7 +427,7 @@ ID ID1(
     .branch_target   (branch_target),
     .jump_target     (jump_target),
     .jr_target       (jr_target),
-    .interrupt       (interrupt),   // T.B.C: should be output of MEM:Datamemory?
+    .interrupt       (interrupt),
     .exception       (exception),
     .ID_EX           (ID_EX)
 );
@@ -488,6 +492,7 @@ MEM MEM1(
     .result_start     (uart_result_start),
     .led              (led),
     .digi             (digi),
+    .irqout           (irq),
     .MEM_WB           (MEM_WB)
 );
 
