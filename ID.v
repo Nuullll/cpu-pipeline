@@ -101,8 +101,8 @@ RegisterFile R1(
     .Read_register1 (ID_Rs),
     .Read_register2 (ID_Rt),
     .Write_register1(WB_WriteRegister),
-    .Write_register2(5'd26),
-    .Write_register3(5'd26),
+    .Write_register2(5'd26),    // $k0
+    .Write_register3(5'd26),    // $k0
     .Write_data1    (WB_RegWriteData),
     .Write_data2    (PC_plus4 - 4),
     .Write_data3    (PC_plus4),
