@@ -62,6 +62,7 @@ UART UART1(
 );
 
 wire [4:0] EX_WriteRegister;
+wire [31:0] EX_ALUResult;
 
 wire [1:0] WB_MemtoReg;
 wire [31:0] WB_RegWriteData;
@@ -76,30 +77,34 @@ wire irq;   // Interrupt request from MEM
 
 ID ID1(
     // Input
-    .clk             (clk),
-    .rst_n           (rst_n),
-    .uart_signal     (uart_signal),
-    .uart_flag       (uart_flag),
-    .uart_rx_data    (uart_rx_data),
-    .irq             (irq),
-    .instruction     (IF_ID[31:0]),
-    .PC_plus4        (IF_ID[63:32]),
-    .WB_WriteRegister(MEM_WB[68:64]),
-    .WB_RegWrite     (MEM_WB[69]),
-    .WB_RegWriteData (WB_RegWriteData),
-    .EX_WriteRegister(EX_WriteRegister),
+    .clk              (clk),
+    .rst_n            (rst_n),
+    .uart_signal      (uart_signal),
+    .uart_flag        (uart_flag),
+    .uart_rx_data     (uart_rx_data),
+    .irq              (irq),
+    .instruction      (IF_ID[31:0]),
+    .PC_plus4         (IF_ID[63:32]),
+    .WB_WriteRegister (MEM_WB[68:64]),
+    .WB_RegWrite      (MEM_WB[69]),
+    .WB_RegWriteData  (WB_RegWriteData),
+    .EX_WriteRegister (EX_WriteRegister),
+    .EX_ALUResult     (EX_ALUResult),
+    .MEM_RegWrite     (EX_MEM[71]),
+    .MEM_WriteRegister(EX_MEM[68:64]),
+    .MEM_ALUResult    (EX_MEM[63:32]),
     // Output
-    .uart_result_data(uart_result_data),
-    .Z               (Z),
-    .J               (J),
-    .JR              (JR),
-    .PC_IF_ID_Write  (PC_IF_ID_Write),
-    .branch_target   (branch_target),
-    .jump_target     (jump_target),
-    .jr_target       (jr_target),
-    .interrupt       (interrupt),
-    .exception       (exception),
-    .ID_EX           (ID_EX)
+    .uart_result_data (uart_result_data),
+    .Z                (Z),
+    .J                (J),
+    .JR               (JR),
+    .PC_IF_ID_Write   (PC_IF_ID_Write),
+    .branch_target    (branch_target),
+    .jump_target      (jump_target),
+    .jr_target        (jr_target),
+    .interrupt        (interrupt),
+    .exception        (exception),
+    .ID_EX            (ID_EX)
 );
 
 EX EX1(
@@ -131,6 +136,7 @@ EX EX1(
     .WB_RegWriteData  (WB_RegWriteData),
     // Output
     .EX_WriteRegister (EX_WriteRegister),
+    .EX_ALUResult     (EX_ALUResult),
     .EX_MEM           (EX_MEM)
 );
 
