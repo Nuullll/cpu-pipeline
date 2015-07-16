@@ -58,7 +58,7 @@ UART UART1(
     .rx_data     (uart_rx_data),
     .flag        (uart_flag),
     .signal      (uart_signal),
-    .UART_TX     (uart_tx),
+    .UART_TX     (uart_tx)
 );
 
 wire [4:0] EX_WriteRegister;
