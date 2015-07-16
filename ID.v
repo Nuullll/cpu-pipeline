@@ -18,6 +18,8 @@ module ID (
     // input EX_MemRead,   // Input for hazard unit to detect hazard
     input [4:0] EX_WriteRegister,   // Input for hazard unit to detect hazard
 
+    input irq,      // Interrupt request from MEM
+
     // Output for uart
     output [7:0] uart_result_data,
 
@@ -67,6 +69,8 @@ wire [31:0] ID_RtData;
 assign ID_Rd = instruction[15:11];
 assign ID_Rs = instruction[25:21];
 assign ID_Rt = instruction[20:16];
+
+assign interrupt = ~PC_plus4[31] & irq;     // do NOT interrupt if PC[31] == 1
 
 Control C1(
     // Input

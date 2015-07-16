@@ -16,6 +16,7 @@ module MEM (
     input [4:0] MEM_WriteRegister,  // From EX_MEM[68:64]
 
     output result_start,        // For uart, to receive result
+    output irqout,
     output [7:0] led,
     output [11:0] digi,
 
@@ -37,7 +38,7 @@ DataMemory D1(
     .result_start(result_start),
     .led         (led),
     .digi        (digi),
-    .irqout      (irqout)       // T.B.C
+    .irqout      (irqout)
 );
 
 always @(posedge clk or negedge rst_n) begin

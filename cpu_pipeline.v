@@ -72,6 +72,8 @@ assign WB_RegWriteData = (WB_MemtoReg == 2'b00) ? MEM_WB[31:0] :    // MEM_ALURe
                          (WB_MemtoReg == 2'b10) ? MEM_WB[103:72] :  // PC_plus4, jal
                          32'hffffffff;  // Unexpected behavior
 
+wire irq;   // Interrupt request from MEM
+
 ID ID1(
     // Input
     .clk             (clk),
@@ -79,6 +81,7 @@ ID ID1(
     .uart_signal     (uart_signal),
     .uart_flag       (uart_flag),
     .uart_rx_data    (uart_rx_data),
+    .irq             (irq),
     .instruction     (IF_ID[31:0]),
     .PC_plus4        (IF_ID[63:32]),
     .WB_WriteRegister(MEM_WB[68:64]),
@@ -94,7 +97,7 @@ ID ID1(
     .branch_target   (branch_target),
     .jump_target     (jump_target),
     .jr_target       (jr_target),
-    .interrupt       (interrupt),   // T.B.C: should be output of MEM:Datamemory?
+    .interrupt       (interrupt),
     .exception       (exception),
     .ID_EX           (ID_EX)
 );
@@ -159,6 +162,7 @@ MEM MEM1(
     .result_start     (uart_result_start),
     .led              (led),
     .digi             (digi),
+    .irqout           (irq),
     .MEM_WB           (MEM_WB)
 );
 
