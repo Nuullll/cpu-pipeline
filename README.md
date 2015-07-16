@@ -144,17 +144,77 @@ module cpu_pipeline (
 
 - 接口
 
-```verilog
-module IF (
-    input clk,      // Clock
-    input rst_n,    // Asynchronous reset active low
-    input PC_IF_ID_Write,          // Whether PC and IF_ID can be changed
-    input [31:0] branch_target,
-    input [31:0] jump_target,   
-    input [31:0] jr_target,     
-    input [2:0] select_PC_next, // {Z, J, Jr} to select next PC
-    input [1:0] status,         // 00: normal, 01: Reset, 10: Interrupt, 11: Exception
-    
-    output reg [63:0] IF_ID     // Register between IF and ID stage
-);
-```
+    ```verilog
+    module IF (
+        input clk,      // Clock
+        input rst_n,    // Asynchronous reset active low
+        input PC_IF_ID_Write,          // Whether PC and IF_ID can be changed
+        input [31:0] branch_target,
+        input [31:0] jump_target,   
+        input [31:0] jr_target,     
+        input [2:0] select_PC_next, // {Z, J, Jr} to select next PC
+        input [1:0] status,         // 00: normal, 01: Reset, 10: Interrupt, 11: Exception
+        
+        output reg [63:0] IF_ID     // Register between IF and ID stage
+    );
+    ```
+
+### `ID.v`
+
+- `ID_EX`结构
+
+    ```verilog
+    // 158 bits
+    // reset [157:143]: bubble
+
+    ID_EX[31:0] <= ID_RtData;
+    ID_EX[63:32] <= ID_RsData;
+    ID_EX[68:64] <= ID_Rt;
+    ID_EX[73:68] <= ID_Rs;
+    ID_EX[78:74] <= ID_Rd;
+    ID_EX[110:79] <= imm32;
+    ID_EX[142:111] <= LuOut;
+
+    ID_EX[152:143] <= {ID_ALUFun, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
+
+    ID_EX[154:153] <= {ID_MemRead, ID_MemWrite};    // for MEM
+
+    ID_EX[157:155] <= {ID_MemtoReg, ID_RegWrite};   // for WB
+    ```
+
+- 接口
+
+    ```verilog
+    module ID (
+        input clk,    // Clock
+        input rst_n,  // Asynchronous reset active low
+
+        input uart_signal,  // 1: there is new data from uart
+        input uart_flag,    // 0: uart_register1, 1: uart_register2
+        input [7:0] uart_rx_data,   // Data from uart
+
+        input [31:0] instruction,   // Get instruction from IF_ID[31:0]
+        input [31:0] PC_plus4,      // Get PC+4 from IF_ID[63:32]
+        
+        input RegWrite,     // From WB_RegWrite
+        input [4:0] WriteRegister,  // From WB_WriteRegister
+        input [31:0] RegWriteData,  // From WB_RegWriteData
+
+        input EX_MemRead,   // Input for hazard unit to detect hazard
+        input [4:0] EX_WriteRegister,   // Input for hazard unit to detect hazard
+
+        // Output for uart
+        output [7:0] uart_result_data,
+
+        // Output for IF
+        output Z,   // Whether goto branch target
+        output J,   // Whether it's a Jump instruction
+        output JR,  // Whether it's a Jump Register instruction
+        output PC_IF_ID_Write,  // Enable for PC and IF_ID
+        output [31:0] branch_target, 
+        output [31:0] jump_target, 
+        output [31:0] jr_target,
+
+        output [157:0] ID_EX
+    );
+    ```
