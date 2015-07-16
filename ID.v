@@ -50,10 +50,8 @@ wire ID_ALUSrc2;
 wire [1:0] ID_RegDst;   // Target register to write; 00: rd, 01: rt, 10: ra, 11: k0
 
 // for Control
-wire interrupt;
-wire exception;     // Undefined instruction
 wire [2:0] PCSrc;
-wire Branch;
+wire Branch;        // T.B.C: necessary?
 wire ExtOp;         // Extend imm16 to imm32
 wire LuOp;
 wire [4:0] ALUOp;
