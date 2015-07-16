@@ -1,10 +1,10 @@
 
 module DataMemory(reset, clk, Address, Write_data, Read_data, MemRead, MemWrite, 
-                  led, switch, digi, irqout, result_start);
+                  led, digi, irqout, result_start);
 	input             reset, clk;
 	input      [31:0] Address, Write_data;
 	input             MemRead, MemWrite;
-	input      [7:0]  switch;
+	// input      [7:0]  switch;
 	output            result_start;
 	output reg [7:0]  led;
 	output reg [11:0] digi;
@@ -29,7 +29,7 @@ module DataMemory(reset, clk, Address, Write_data, Read_data, MemRead, MemWrite,
 			  32'h40000004: Read_data <= MemRead? TL: 32'd0;
 			  32'h40000008: Read_data <= MemRead? {29'b0,TCON}: 32'd0;
 			  32'h4000000c: Read_data <= MemRead? {24'b0,led}: 32'd0;
-			  32'h40000010: Read_data <= MemRead? {24'b0,switch}: 32'd0;
+			  // 32'h40000010: Read_data <= MemRead? {24'b0,switch}: 32'd0;
 			  32'h40000014: Read_data <= MemRead? {20'b0,digi}: 32'd0;
 			  default: Read_data <= MemRead? RAM_data[Address[31:2]]: 32'd0;
 		 endcase
