@@ -20,7 +20,7 @@ module ID (
     input [31:0] EX_ALUResult,      // Input for ID-forward
     input [4:0] MEM_WriteRegister,  // Input for ID-forward
     input [31:0] MEM_ALUResult,     // Input for ID-forward
-    input EX_RegWrite,              // Input for ID-forward
+    // input EX_RegWrite,              // Input for ID-forward
     input MEM_RegWrite,             // Input for ID-forward
 
     input irq,      // Interrupt request from MEM
@@ -188,7 +188,7 @@ IDForward IDF1(
     .ALUOp            (ALUOp),
     .ID_Rs            (ID_Rs),
     .ID_Rt            (ID_Rt),
-    .EX_RegWrite      (EX_RegWrite),
+    .EX_RegWrite      (ID_EX[156]),
     .MEM_RegWrite     (MEM_RegWrite),
     .EX_WriteRegister (EX_WriteRegister),
     .MEM_WriteRegister(MEM_WriteRegister),
