@@ -18,8 +18,7 @@ wire [31:0] PC_plus4;
 wire [31:0] instruction;
 wire flush_IF_ID;               // whether to flush IF_ID
 
-// If status is not normal, PC_plus4[31] should be 1
-assign PC_plus4 = {(|status)|PC[31], PC[30:0] + 31'd4};   // keep PC[31]
+assign PC_plus4 = {PC[31], PC[30:0] + 31'd4};   // keep PC[31]
 
 InstructionMemory ROM(
     // Input
