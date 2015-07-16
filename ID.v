@@ -32,7 +32,7 @@ module ID (
     output interrupt,
     output exception,
 
-    output reg [189:0] ID_EX
+    output reg [157:0] ID_EX
 );
 
 // for WB
@@ -122,10 +122,12 @@ ZeroTest Z1(
 );
 
 wire [31:0] imm32;
+wire [31:0] LuOut;  // Select by LuOp
 wire [31:0] shamt32;
 
 assign imm32 = ExtOp ? {16{instruction[15]}, instruction[15:0]} :
                        {16'b0, instruction[15:0]};
+assign LuOut = LuOp ? {instruction[15:0], 16'b0} : imm32;
 assign shamt32 = {27'b0, instruction[10:6]};                       
 
 assign branch_target = PC_plus4 + {imm32[29:0], 2'b00};
@@ -149,10 +151,6 @@ HazardDetector H1(
     .bubble          (bubble)
 );
 
-wire [31:0] LuOut;  // Select by LuOp
-
-assign LuOut = LuOp ? {instruction[15:0], 16'b0} : imm32;
-
 // Write to ID_EX
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
@@ -163,15 +161,14 @@ always @(posedge clk or negedge rst_n) begin
         ID_EX[68:64] <= ID_Rt;
         ID_EX[73:69] <= ID_Rs;
         ID_EX[78:74] <= ID_Rd;
-        ID_EX[110:79] <= imm32;
+        ID_EX[110:79] <= LuOut;
         ID_EX[142:111] <= shamt32;
-        ID_EX[174:143] <= LuOut;
         if(~bubble) begin
-            ID_EX[184:175] <= {ID_ALUFun, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
-            ID_EX[186:185] <= {ID_MemRead, ID_MemWrite};    // for MEM
-            ID_EX[189:187] <= {ID_MemtoReg, ID_RegWrite};   // for WB
+            ID_EX[152:143] <= {ID_ALUFun, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
+            ID_EX[154:153] <= {ID_MemRead, ID_MemWrite};    // for MEM
+            ID_EX[157:155] <= {ID_MemtoReg, ID_RegWrite};   // for WB
         end else begin
-            ID_EX[189:175] <= 0;
+            ID_EX[157:143] <= 0;
         end
     end
 end

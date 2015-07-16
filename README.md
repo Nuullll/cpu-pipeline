@@ -164,23 +164,22 @@ module cpu_pipeline (
 - `ID_EX`结构
 
     ```verilog
-    // 190 bits
-    // reset [189:175]: bubble
+    // 158 bits
+    // reset [157:143]: bubble
 
     ID_EX[31:0] <= ID_RtData;
     ID_EX[63:32] <= ID_RsData;
     ID_EX[68:64] <= ID_Rt;
     ID_EX[73:69] <= ID_Rs;
     ID_EX[78:74] <= ID_Rd;
-    ID_EX[110:79] <= imm32;
+    ID_EX[110:79] <= LuOut;
     ID_EX[142:111] <= shamt32;
-    ID_EX[174:143] <= LuOut;
 
-    ID_EX[184:175] <= {ID_ALUFun, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
+    ID_EX[152:143] <= {ID_ALUFun, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
 
-    ID_EX[186:185] <= {ID_MemRead, ID_MemWrite};    // for MEM
-
-    ID_EX[189:187] <= {ID_MemtoReg, ID_RegWrite};   // for WB
+    ID_EX[154:153] <= {ID_MemRead, ID_MemWrite};    // for MEM
+    
+    ID_EX[157:155] <= {ID_MemtoReg, ID_RegWrite};   // for WB
     ```
 
 - 接口
