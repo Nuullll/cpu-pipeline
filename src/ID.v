@@ -118,7 +118,7 @@ RegisterFile R1(
     .Write_register2(5'd26),    // $k0
     .Write_register3(5'd26),    // $k0
     .Write_data1    (WB_RegWriteData),
-    .Write_data2    (PC_plus4 - 4),
+    .Write_data2    (PC_plus4 + 32'hffff_fffc),     // PC_plus4 - 4
     .Write_data3    (PC_plus4),
     // Output
     .Read_data1     (ID_RsData),

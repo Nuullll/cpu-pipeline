@@ -18,7 +18,7 @@ wire [31:0] PC_plus4;
 wire [31:0] instruction;
 wire flush_IF_ID;               // whether to flush IF_ID
 
-assign PC_plus4 = {PC[31], PC[30:0] + 4};   // keep PC[31]
+assign PC_plus4 = {PC[31], PC[30:0] + 31'd4};   // keep PC[31]
 
 InstructionMemory ROM(
     // Input
@@ -32,7 +32,7 @@ assign flush_IF_ID = select_PC_next[2];
 
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
-        PC <= 32'b0;
+        PC <= 32'h8000_0000;
         IF_ID <= 0;
     end else begin
         if(PC_IF_ID_Write) begin   // enable to write PC and IF_ID
