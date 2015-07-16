@@ -7,7 +7,7 @@ module IF (
     input [31:0] branch_target,
     input [31:0] jump_target,   
     input [31:0] jr_target,     
-    input [2:0] select_PC_next, // {Z, J, Jr} to select next PC
+    input [2:0] select_PC_next, // {Z, J, JR} to select next PC
     input [1:0] status,         // {interrupt, exception}
     
     output reg [63:0] IF_ID     // Register between IF and ID stage
@@ -28,7 +28,7 @@ InstructionMemory ROM(
 );
 
 // whether to flush IF_ID
-assign flush_IF_ID = select_PC_next[2];
+assign flush_IF_ID = |select_PC_next;   // Z || J || JR
 
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
