@@ -7,7 +7,17 @@ module test_cpu();
 	wire [7:0] led;
 	wire [6:0] digi1, digi2, digi3, digi4;
 	
-	cpu_pipeline cpu1(clk,reset,led, uart_rx, uart_tx, digi1, digi2, digi3, digi4);
+	cpu_pipeline cpu1(
+        .clk    (clk),
+        .rst_n  (reset),
+        .uart_rx(uart_rx),
+        .uart_tx(uart_tx),
+        .led    (led),
+        .digi1  (digi1),
+        .digi2  (digi2),
+        .digi3  (digi3),
+        .digi4  (digi4)
+    );
 	
 	always #1 clk <= ~clk;
 
