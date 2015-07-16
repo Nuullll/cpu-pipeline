@@ -38,6 +38,7 @@ module EX (
     // Output for ID
     // output EX_MemRead,          // From ID_EX[155]
     output [4:0] EX_WriteRegister,
+    output [31:0] EX_ALUResult,     // Forward to ID
 
     output reg [105:0] EX_MEM
 );
@@ -73,7 +74,6 @@ assign operand2 = (EX_ALUSrc2) ? EX_LuOut : B;
 
 // Write into EX_MEM
 wire [31:0] EX_MemWriteData;
-wire [31:0] EX_ALUResult;
 
 assign EX_MemWriteData = B;
 

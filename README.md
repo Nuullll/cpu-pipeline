@@ -45,33 +45,27 @@
 
 - **转发数据**
 
-    + 由于分支判断提前至`ID`阶段, 即在`ID`阶段需读取寄存器`Rs`和`Rt`的值, 而此时上一条指令(`EX`阶段的指令)还未写入寄存器, 存在数据冒险, 可通过转发解决
+    + 由于分支判断提前至`ID`阶段, 即在`ID`阶段需读取寄存器`Rs`和`Rt`的值, 而此时上一条指令(`EX`阶段的指令)以及上上条指令(`MEM`阶段的指令)还未写入寄存器, 存在数据冒险, 可通过转发解决
 
-    + 转发条件**A**(同时满足以下四条则转发, *不转不是中国人*)
+    + 转发条件
 
-        1. `ALUOp[3:0] == 4'b0001 || ALUOp[3:0] == 4'b0011`: 当前指令为`beq`或`bne`
+        - 当前指令为`beq`或`bne`: 需同时考虑`Rs`和`Rt`的冒险
 
-        2. `EX_RegWrite == 1`: 上一条指令需写回寄存器
+            + `EX_RegWrite & ~MEM_RegWrite`: 上一条指令写回非零寄存器(以下均指非零寄存器), 上上条指令不写回
 
-        3. `EX_WriteRegister != 0`: 上一条指令目标寄存器不是`$zero`
+                - `EX_WriteRegister == ID_Rs || EX_WriteRegister == ID_Rt`: 转发数据`EX_ALUResult`
 
-        4. `EX_WriteRegister == ID_Rs || EX_WriteRegister == ID_Rt`: 上一条指令目标寄存器与当前分支指令源寄存器之一相同
+            + `~EX_RegWrite & MEM_RegWrite`: 上一条指令不写回, 上上条写回
 
-        - 转发数据: `EX_ALUResult`
+                - `MEM_WriteRegister == ID_Rs || MEM_WriteRegister == ID_Rt`: 转发数据`MEM_ALUResult`
 
-    + 转发条件**B**(同时满足以下五条则转发, *不转不是中国人*)
+            + `EX_RegWrite & MEM_RegWrite`: 上两条指令都写回
 
-        1. 不满足条件**A**
+                - 若上两条指令目标寄存器相同且与源寄存器之一相同, 则只转发上一条指令数据`EX_ALUResult`
 
-        2. `Branch == 1 || JR == 1`: 当前指令为`blez`, `bgtz`, `bgez`, `jr`
+                - 其余情况该转发啥转发啥, 不再赘述, 但**不转不是中国人**
 
-        3. `EX_RegWrite == 1`: 上一条指令需写回寄存器
-
-        4. `EX_WriteRegister != 0`: 上一条指令目标寄存器不是`$zero`
-
-        5. `EX_WriteRegister == ID_Rs: 上一条指令目标寄存器与当前指令源寄存器`Rs`相同
-
-        - 转发数据: `EX_ALUResult`
+        - 当前指令为`blez`, `bgtz`, `bgez`, `jr`: 与上述过程类似, 但只需判断`Rs`的冒险
 
 ### `EX` (Execute)
 
