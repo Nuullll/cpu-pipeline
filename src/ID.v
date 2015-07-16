@@ -194,7 +194,7 @@ IDForward IDF1(
     .MEM_WriteRegister(MEM_WriteRegister),
     // Output
     .forwardRs        (forwardRs),
-    .forwardRt        (forwardRt),
+    .forwardRt        (forwardRt)
 );
 
 // Write to ID_EX
