@@ -20,7 +20,7 @@ module EX (
     input [31:0] EX_RsData, // From ID_EX[63:32]
     input [31:0] EX_RtData, // From ID_EX[31:0]
 
-    // Input for forward unit
+    // Input for forward
     input MEM_RegWrite,
     input [4:0] MEM_WriteRegister,
     input [31:0] MEM_RegWriteData,
@@ -34,5 +34,40 @@ module EX (
 
     output [63:0] EX_MEM    // {ALUOut[31:0], EX_MemWriteData[31:0]}
 );
+
+
+
+endmodule
+
+
+module Forward (
+    input MEM_RegWrite,
+    input [4:0] MEM_WriteRegister,
+    input WB_RegWrite,
+    input [4:0] WB_WriteRegister,
+
+    output reg [1:0] forward1,  // 00: NOT forward, 01: forward WB, 10: forward MEM
+    output reg [1:0] forward2   // 00: NOT forward, 01: forward WB, 10: forward MEM
+);
+
+always @(*) begin
+    if (MEM_RegWrite && MEM_WriteRegister != 0 && MEM_WriteRegister == EX_Rs) begin
+        forward1 <= 2'b01;  // Forward MEM_RegWriteData to src1
+    end else if (WB_RegWrite && WB_WriteRegister != 0 && WB_WriteRegister == EX_Rs) begin
+        forward1 <= 2'b10;  // Forward WB_RegWriteData to src1
+    end else begin
+        forward1 <= 2'b00;
+    end
+end
+
+always @(*) begin
+    if (MEM_RegWrite && MEM_WriteRegister != 0 && MEM_WriteRegister == EX_Rt) begin
+        forward2 <= 2'b01;  // Forward MEM_RegWriteData to src2
+    end else if (WB_RegWrite && WB_WriteRegister != 0 && WB_WriteRegister == EX_Rt) begin
+        forward2 <= 2'b10;  // Forward WB_RegWriteData to src2
+    end else begin
+        forward2 <= 2'b00;
+    end
+end
 
 endmodule
