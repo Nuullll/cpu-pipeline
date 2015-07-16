@@ -32,7 +32,7 @@ module ID (
     output interrupt,
     output exception,
 
-    output reg [158:0] ID_EX
+    output reg [190:0] ID_EX
 );
 
 // for WB
@@ -180,6 +180,7 @@ always @(posedge clk or negedge rst_n) begin
         end else begin
             ID_EX[158:143] <= 0;
         end
+        ID_EX[190:159] <= PC_plus4;     // For jal
     end
 end
 
