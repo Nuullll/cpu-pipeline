@@ -39,7 +39,7 @@ module EX (
     // output EX_MemRead,          // From ID_EX[155]
     output [4:0] EX_WriteRegister,
 
-    output [105:0] EX_MEM
+    output reg [105:0] EX_MEM
 );
 
 wire [1:0] forward1, forward2;
