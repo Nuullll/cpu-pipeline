@@ -2,7 +2,7 @@ module ALU(A,B,ALUfun,S,sign);
     input [31:0] A,B;
     input [5:0]  ALUfun;
     input        sign;
-    output[31:0] S;
+    output [31:0] S;
     wire  [31:0] addout,compareout,logicout,shifterout;
     wire         Z,V,N;
 	 

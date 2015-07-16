@@ -15,7 +15,7 @@ module ID (
     input [4:0] WB_WriteRegister,   // From WB_WriteRegister
     input [31:0] WB_RegWriteData,   // From WB_RegWriteData
 
-    input EX_MemRead,   // Input for hazard unit to detect hazard
+    // input EX_MemRead,   // Input for hazard unit to detect hazard
     input [4:0] EX_WriteRegister,   // Input for hazard unit to detect hazard
 
     // Output for uart
@@ -152,7 +152,7 @@ wire bubble;    // Clear control signals in ID_EX
 
 HazardDetector H1(
     // Input
-    .EX_MemRead      (EX_MemRead),
+    .EX_MemRead      (ID_EX[155]),
     .EX_WriteRegister(EX_WriteRegister),
     .ID_Rs           (ID_Rs),
     .ID_Rt           (ID_Rt),

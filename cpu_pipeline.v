@@ -15,6 +15,7 @@ module cpu_pipeline (
 
 wire [63:0] IF_ID;
 wire [158:0] ID_EX;
+wire [72:0] EX_MEM;
 
 // ID->IF
 wire PC_IF_ID_Write; 

@@ -28,11 +28,16 @@ module EX (
     input [4:0] WB_WriteRegister, 
     input [31:0] WB_RegWriteData,
 
+    // Pass from ID_EX to EX_MEM
+    input EX_MemWrite;          // From ID_EX[154]
+    input EX_RegWrite;          // From ID_EX[156]
+    input [1:0] EX_MemtoReg;    // From ID_EX[158:157]
+
     // Output for ID
-    output EX_MemRead,
+    // output EX_MemRead,          // From ID_EX[155]
     output [4:0] EX_WriteRegister,
 
-    output [63:0] EX_MEM    // {ALUOut[31:0], EX_MemWriteData[31:0]}
+    output [72:0] EX_MEM
 );
 
 wire [1:0] forward1, forward2;
@@ -62,9 +67,39 @@ wire [31:0] operand1, operand2;     // 2 final operands of ALU
 assign operand1 = (EX_ALUSrc1) ? EX_Shamt32 : A;    // Shift or not
 assign operand2 = (EX_ALUSrc2) ? EX_LuOut : B;
 
-wire [31:0] EX_MemWriteData;    // Ready to store into EX_MEM
+// Write into EX_MEM
+wire [31:0] EX_MemWriteData;
+wire [31:0] EX_ALUResult;
 
 assign EX_MemWriteData = B;
+
+ALU A1(
+    // Input
+    .A     (operand1),
+    .B     (operand2),
+    .sign  (EX_ALUSign),
+    .ALUfun(EX_ALUCtl),
+    // Output
+    .S     (EX_ALUResult)
+);
+
+assign EX_WriteRegister = (EX_RegDst == 2'b00) ? EX_Rt :
+                          (EX_RegDst == 2'b01) ? EX_Rd :
+                          (EX_RegDst == 2'b10) ? 5'd31 :    // $ra
+                          5'd26;    // $k0
+
+
+always @(posedge clk or negedge rst_n) begin
+    if(~rst_n) begin
+        EX_MEM <= 0;
+    end else begin
+        EX_MEM[31:0] <= EX_MemWriteData;
+        EX_MEM[63:32] <= EX_ALUResult;
+        EX_MEM[68:64] <= EX_WriteRegister;
+        EX_MEM[69] <= EX_MemWrite;  // For MEM
+        EX_MEM[72:70] <= {EX_RegWrite, EX_MemtoReg};    // For WB
+    end
+end
 
 endmodule
 
