@@ -50,6 +50,8 @@ Forward F1(
     .MEM_WriteRegister(MEM_WriteRegister),
     .WB_RegWrite      (WB_RegWrite),
     .WB_WriteRegister (WB_WriteRegister),
+    .EX_Rs            (EX_Rs),
+    .EX_Rt            (EX_Rt),
     // Output
     .forward1         (forward1),
     .forward2         (forward2)
@@ -112,6 +114,8 @@ module Forward (
     input [4:0] MEM_WriteRegister,
     input WB_RegWrite,
     input [4:0] WB_WriteRegister,
+    input [4:0] EX_Rs,
+    input [4:0] EX_Rt,
 
     output reg [1:0] forward1,  // 00: NOT forward, 01: forward WB, 10: forward MEM
     output reg [1:0] forward2   // 00: NOT forward, 01: forward WB, 10: forward MEM
