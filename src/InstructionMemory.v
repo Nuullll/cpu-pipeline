@@ -4,7 +4,7 @@ module InstructionMemory(Address, Instruction);
     output reg [31:0] Instruction;
 
     always @(*)
-        case (Address[9:2])
+        case (Address[8:2])
             // j       Reset
             8'd0: Instruction <= 32'h08000003;
             // j       Break
