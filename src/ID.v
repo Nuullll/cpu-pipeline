@@ -234,8 +234,8 @@ module ZeroTest (
 wire eq;    // 1: if RsData == RtData
 wire zero;  // 1: if RsData == 0
 
-assign eq = ~|(RsData ^ RtData);
-assign zero = ~|RsData;
+assign eq = (RsData == RtData);
+assign zero = (RsData == 32'd0);
 
 always @(*) begin
     case (ALUOp[3:0])
