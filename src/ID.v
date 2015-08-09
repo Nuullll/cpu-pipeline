@@ -17,11 +17,6 @@ module ID (
 
     // input EX_MemRead,   // Input for hazard unit to detect hazard
     input [4:0] EX_WriteRegister,   // Input for hazard unit to detect hazard
-    input [31:0] EX_ALUResult,      // Input for ID-forward
-    input [4:0] MEM_WriteRegister,  // Input for ID-forward
-    input [31:0] MEM_ALUResult,     // Input for ID-forward
-    // input EX_RegWrite,              // Input for ID-forward
-    input MEM_RegWrite,             // Input for ID-forward
 
     input irq,      // Interrupt request from MEM
 
@@ -131,26 +126,26 @@ RegisterFile R1(
     .result_data    (uart_result_data)
 );
 
-wire [1:0] forwardRs, forwardRt;
-wire [31:0] RsData, RtData;
+// wire [1:0] forwardRs, forwardRt;
+// wire [31:0] RsData, RtData;
 
-assign RsData = (forwardRs == 2'b00) ? ID_RsData :
-                (forwardRs == 2'b01) ? EX_ALUResult :
-                (forwardRs == 2'b10) ? MEM_ALUResult :
-                32'hffff_ffff;  // Unexpected
-assign RtData = (forwardRt == 2'b00) ? ID_RtData :
-                (forwardRt == 2'b01) ? EX_ALUResult :
-                (forwardRt == 2'b10) ? MEM_ALUResult :
-                32'hffff_ffff;  // Unexpected
+// assign RsData = (forwardRs == 2'b00) ? ID_RsData :
+//                 (forwardRs == 2'b01) ? EX_ALUResult :
+//                 (forwardRs == 2'b10) ? MEM_ALUResult :
+//                 32'hffff_ffff;  // Unexpected
+// assign RtData = (forwardRt == 2'b00) ? ID_RtData :
+//                 (forwardRt == 2'b01) ? EX_ALUResult :
+//                 (forwardRt == 2'b10) ? MEM_ALUResult :
+//                 32'hffff_ffff;  // Unexpected
 
-ZeroTest Z1(
-    // Input
-    .ALUOp (ALUOp),
-    .RsData(RsData),
-    .RtData(RtData),
-    // Output
-    .Z     (Z)
-);
+// ZeroTest Z1(
+//     // Input
+//     .ALUOp (ALUOp),
+//     .RsData(RsData),
+//     .RtData(RtData),
+//     // Output
+//     .Z     (Z)
+// );
 
 wire [31:0] imm32;
 wire [31:0] LuOut;  // Select by LuOp
@@ -161,13 +156,13 @@ assign imm32 = ExtOp ? {{16{instruction[15]}}, instruction[15:0]} :
 assign LuOut = LuOp ? {instruction[15:0], 16'b0} : imm32;
 assign shamt32 = {27'b0, instruction[10:6]};                       
 
-assign branch_target = PC_plus4 + {imm32[29:0], 2'b00};
+// assign branch_target = PC_plus4 + {imm32[29:0], 2'b00};
 
-assign J = (PCSrc == 3'b001);
-assign jump_target = {PC_plus4[31:28], instruction[25:0], 2'b00};
+// assign J = (PCSrc == 3'b001);
+// assign jump_target = {PC_plus4[31:28], instruction[25:0], 2'b00};
 
-assign JR = (PCSrc == 3'b010);
-assign jr_target = RsData;
+// assign JR = (PCSrc == 3'b010);
+// assign jr_target = RsData;
 
 wire bubble;    // Clear control signals in ID_EX
 
@@ -182,73 +177,34 @@ HazardDetector H1(
     .bubble          (bubble)
 );
 
-IDForward IDF1(
-    // Input
-    .bubble           (bubble),
-    .ALUOp            (ALUOp),
-    .ID_Rs            (ID_Rs),
-    .ID_Rt            (ID_Rt),
-    .EX_RegWrite      (ID_EX[156]),
-    .MEM_RegWrite     (MEM_RegWrite),
-    .EX_WriteRegister (EX_WriteRegister),
-    .MEM_WriteRegister(MEM_WriteRegister),
-    // Output
-    .forwardRs        (forwardRs),
-    .forwardRt        (forwardRt)
-);
+endmodule // ID
 
-// Write to ID_EX
-always @(posedge clk or negedge rst_n) begin
-    if(~rst_n) begin
-        ID_EX <= 0;
-    end else begin
-        ID_EX[31:0] <= ID_RtData;
-        ID_EX[63:32] <= ID_RsData;
-        ID_EX[68:64] <= ID_Rt;
-        ID_EX[73:69] <= ID_Rs;
-        ID_EX[78:74] <= ID_Rd;
-        ID_EX[110:79] <= LuOut;
-        ID_EX[142:111] <= shamt32;
-        if(~bubble) begin
-            ID_EX[153:143] <= {ID_ALUCtl, ID_ALUSign, ID_ALUSrc1, ID_ALUSrc2, ID_RegDst};   // Control for EX
-            ID_EX[155:154] <= {ID_MemRead, ID_MemWrite};    // for MEM
-            ID_EX[158:156] <= {ID_MemtoReg, ID_RegWrite};   // for WB
-        end else begin
-            ID_EX[158:143] <= 0;
-        end
-        ID_EX[190:159] <= PC_plus4;     // For jal
-    end
-end
+// module ZeroTest (
+//     input [4:0] ALUOp,
+//     input [31:0] RsData,
+//     input [31:0] RtData,
 
-endmodule
+//     output reg Z    // 1: goto branch target
+// );
 
+// wire eq;    // 1: if RsData == RtData
+// wire zero;  // 1: if RsData == 0
 
-module ZeroTest (
-    input [4:0] ALUOp,
-    input [31:0] RsData,
-    input [31:0] RtData,
+// assign eq = (RsData == RtData);
+// assign zero = (RsData == 32'd0);
 
-    output reg Z    // 1: goto branch target
-);
+// always @(*) begin
+//     case (ALUOp[3:0])
+//         4'b0001 : Z <= eq;  // beq
+//         4'b0011 : Z <= ~eq; // bne
+//         4'b0110 : Z <= RsData[31] | zero;    // blez
+//         4'b0111 : Z <= ~RsData[31] & ~zero;  // bgtz
+//         4'b1000 : Z <= ~RsData[31] | zero;   // bgez
+//         default : Z <= 0;
+//     endcase
+// end
 
-wire eq;    // 1: if RsData == RtData
-wire zero;  // 1: if RsData == 0
-
-assign eq = (RsData == RtData);
-assign zero = (RsData == 32'd0);
-
-always @(*) begin
-    case (ALUOp[3:0])
-        4'b0001 : Z <= eq;  // beq
-        4'b0011 : Z <= ~eq; // bne
-        4'b0110 : Z <= RsData[31] | zero;    // blez
-        4'b0111 : Z <= ~RsData[31] & ~zero;  // bgtz
-        4'b1000 : Z <= ~RsData[31] | zero;   // bgez
-        default : Z <= 0;
-    endcase
-end
-
-endmodule
+// endmodule
 
 
 module HazardDetector (
@@ -270,42 +226,42 @@ assign PC_IF_ID_Write = ~bubble;
 endmodule
 
 
-module IDForward (
-    input bubble,   // if it's a load-use hazard
-    input [4:0] ALUOp,
-    input [4:0] ID_Rs,
-    input [4:0] ID_Rt,
-    input EX_RegWrite,
-    input MEM_RegWrite,
-    input [4:0] EX_WriteRegister,
-    input [4:0] MEM_WriteRegister,
+// module IDForward (
+//     input bubble,   // if it's a load-use hazard
+//     input [4:0] ALUOp,
+//     input [4:0] ID_Rs,
+//     input [4:0] ID_Rt,
+//     input EX_RegWrite,
+//     input MEM_RegWrite,
+//     input [4:0] EX_WriteRegister,
+//     input [4:0] MEM_WriteRegister,
 
-    output reg [1:0] forwardRs,     // 00: NOT forward, 01: EX_ALUResult, 10: MEM_ALUResult
-    output reg [1:0] forwardRt      // 00: NOT forward, 01: EX_ALUResult, 10: MEM_ALUResult
-);
+//     output reg [1:0] forwardRs,     // 00: NOT forward, 01: EX_ALUResult, 10: MEM_ALUResult
+//     output reg [1:0] forwardRt      // 00: NOT forward, 01: EX_ALUResult, 10: MEM_ALUResult
+// );
 
-always @(*) begin
-    if (~bubble) begin
-        if (EX_RegWrite && EX_WriteRegister != 0 && EX_WriteRegister == ID_Rs) begin
-            forwardRs <= 2'b01;
-        end else if (MEM_RegWrite && MEM_WriteRegister != 0 && MEM_WriteRegister == ID_Rs) begin
-            forwardRs <= 2'b10;
-        end else begin
-            forwardRs <= 2'b00;
-        end
-    end
-end
+// always @(*) begin
+//     if (~bubble) begin
+//         if (EX_RegWrite && EX_WriteRegister != 0 && EX_WriteRegister == ID_Rs) begin
+//             forwardRs <= 2'b01;
+//         end else if (MEM_RegWrite && MEM_WriteRegister != 0 && MEM_WriteRegister == ID_Rs) begin
+//             forwardRs <= 2'b10;
+//         end else begin
+//             forwardRs <= 2'b00;
+//         end
+//     end
+// end
 
-always @(*) begin
-    if (~bubble && (ALUOp[3:0] == 4'b0001 || ALUOp[3:0] == 4'b0011)) begin  // beq, bne
-        if (EX_RegWrite && EX_WriteRegister != 0 && EX_WriteRegister == ID_Rt) begin
-            forwardRt <= 2'b01;
-        end else if (MEM_RegWrite && MEM_WriteRegister != 0 && MEM_WriteRegister == ID_Rt) begin
-            forwardRt <= 2'b10;
-        end else begin
-            forwardRt <= 2'b00;
-        end
-    end
-end
+// always @(*) begin
+//     if (~bubble && (ALUOp[3:0] == 4'b0001 || ALUOp[3:0] == 4'b0011)) begin  // beq, bne
+//         if (EX_RegWrite && EX_WriteRegister != 0 && EX_WriteRegister == ID_Rt) begin
+//             forwardRt <= 2'b01;
+//         end else if (MEM_RegWrite && MEM_WriteRegister != 0 && MEM_WriteRegister == ID_Rt) begin
+//             forwardRt <= 2'b10;
+//         end else begin
+//             forwardRt <= 2'b00;
+//         end
+//     end
+// end
 
-endmodule
+// endmodule

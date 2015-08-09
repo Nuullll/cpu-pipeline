@@ -89,10 +89,6 @@ ID ID1(
     .WB_RegWrite      (MEM_WB[69]),
     .WB_RegWriteData  (WB_RegWriteData),
     .EX_WriteRegister (EX_WriteRegister),
-    .EX_ALUResult     (EX_ALUResult),
-    .MEM_RegWrite     (EX_MEM[71]),
-    .MEM_WriteRegister(EX_MEM[68:64]),
-    .MEM_ALUResult    (EX_MEM[63:32]),
     // Output
     .uart_result_data (uart_result_data),
     .Z                (Z),
@@ -136,7 +132,6 @@ EX EX1(
     .WB_RegWriteData  (WB_RegWriteData),
     // Output
     .EX_WriteRegister (EX_WriteRegister),
-    .EX_ALUResult     (EX_ALUResult),
     .EX_MEM           (EX_MEM)
 );
 

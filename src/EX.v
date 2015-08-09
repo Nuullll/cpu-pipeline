@@ -38,7 +38,6 @@ module EX (
     // Output for ID
     // output EX_MemRead,          // From ID_EX[155]
     output [4:0] EX_WriteRegister,
-    output [31:0] EX_ALUResult,     // Forward to ID
 
     output reg [105:0] EX_MEM
 );
