@@ -4,10 +4,6 @@ module ID (
     input clk,    // Clock
     input rst_n,  // Asynchronous reset active low
 
-    input uart_signal,  // 1: there is new data from uart
-    input uart_flag,    // 0: uart_register1, 1: uart_register2
-    input [7:0] uart_rx_data,   // Data from uart
-
     input [31:0] instruction,   // Get instruction from IF_ID[31:0]
     input [31:0] PC_plus4,      // Get PC+4 from IF_ID[63:32]
     
@@ -24,9 +20,6 @@ module ID (
     input MEM_RegWrite,             // Input for ID-forward
 
     input irq,      // Interrupt request from MEM
-
-    // Output for uart
-    output [7:0] uart_result_data,
 
     // Output for IF
     output Z,   // Whether goto branch target
@@ -109,13 +102,10 @@ ALUControl AC1(
 
 RegisterFile R1(
     // Input
-    .reset          (rst_n),
     .clk            (clk),
+    .rst_n          (rst_n),
     .stall          (interrupt),
     .UI             (exception),
-    .signal         (uart_signal),
-    .flag           (uart_flag),
-    .rx_data        (uart_rx_data),
     .RegWrite       (WB_RegWrite),
     .Read_register1 (ID_Rs),
     .Read_register2 (ID_Rt),
@@ -127,8 +117,7 @@ RegisterFile R1(
     .Write_data3    (PC_plus4),
     // Output
     .Read_data1     (ID_RsData),
-    .Read_data2     (ID_RtData),
-    .result_data    (uart_result_data)
+    .Read_data2     (ID_RtData)
 );
 
 wire [1:0] forwardRs, forwardRt;

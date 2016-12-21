@@ -21,7 +21,7 @@ module ALUControl(ALUOp, Funct, ALUCtl, Sign);
 	parameter aluGEZ = 6'b111_001;
 	parameter aluGTZ = 6'b111_111;
 	
-	assign Sign = (ALUOp[3:0] == 3'b0010)? ~Funct[0]: ~ALUOp[4];
+	assign Sign = (ALUOp[3:0] == 3'b010)? ~Funct[0]: ~ALUOp[4];
 	
 	reg [5:0] aluFunct;
 	always @(*)

@@ -22,6 +22,7 @@ assign PC_plus4 = {(|status)|PC[31], PC[30:0] + 31'd4};   // keep PC[31]
 
 InstructionMemory ROM(
     // Input
+    .rst_n      (rst_n),
     .Address    (PC),
     // Output
     .Instruction(instruction)

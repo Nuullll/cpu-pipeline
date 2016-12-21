@@ -2,21 +2,11 @@
 
 module test_cpu();
 	
-	reg reset, clk, uart_rx;
-	wire uart_tx;
-	wire [7:0] led;
-	wire [6:0] digi1, digi2, digi3, digi4;
-	
+	reg reset, clk;
+
 	cpu_pipeline cpu1(
         .clk    (clk),
-        .rst_n  (reset),
-        .uart_rx(uart_rx),
-        .uart_tx(uart_tx),
-        .led    (led),
-        .digi1  (digi1),
-        .digi2  (digi2),
-        .digi3  (digi3),
-        .digi4  (digi4)
+        .rst_n  (reset)
     );
 	
 	always #1 clk <= ~clk;
@@ -24,41 +14,10 @@ module test_cpu();
    initial begin
     clk = 0;
     reset = 1;
-    uart_rx = 1;
     #1 reset = 0;
     #1 reset = 1;
-    //pc = 0x8000000c;
-    #10000 uart_rx = 0;
 
-    #10000 uart_rx = 1;
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 1;
-
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 0;
-
-    #10000 uart_rx = 1;
-
-    #10000 uart_rx = 0;
-
-    #10000 uart_rx = 1;
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 1;
-    #10000 uart_rx = 0;
-
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 0;
-    #10000 uart_rx = 0;
-
-    #10000 uart_rx = 1;
-
-    
-
-    #300000 $stop;
+    #100000 $stop;
     // #2600 uart_rx = ~uart_rx;
     // #2600 uart_rx = ~uart_rx;
     // #2600 uart_rx = ~uart_rx;

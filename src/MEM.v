@@ -15,10 +15,7 @@ module MEM (
     input MEM_RegWrite,         // From EX_MEM[71]
     input [4:0] MEM_WriteRegister,  // From EX_MEM[68:64]
 
-    output result_start,        // For uart, to receive result
     output irqout,
-    output [7:0] led,
-    output [11:0] digi,
 
     output reg [103:0] MEM_WB
 );
@@ -27,7 +24,7 @@ wire [31:0] MEM_ReadData;
 
 DataMemory D1(
     // Input
-    .reset       (rst_n),
+    .rst_n       (rst_n),
     .clk         (clk),
     .Address     (MEM_ALUResult),
     .Write_data  (MEM_WriteData),
@@ -35,9 +32,6 @@ DataMemory D1(
     .MemWrite    (MEM_MemWrite),
     // Output
     .Read_data   (MEM_ReadData),
-    .result_start(result_start),
-    .led         (led),
-    .digi        (digi),
     .irqout      (irqout)
 );
 

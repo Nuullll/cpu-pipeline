@@ -2,15 +2,7 @@
 
 module cpu_pipeline (
     input clk,          // System Clock
-    input rst_n,        // Asynchronous reset active low
-    input uart_rx,      // UART receive data
-
-    output uart_tx,     // UART transmit data
-    output [7:0] led,   // Result
-    output [6:0] digi1, // part I of operand1
-    output [6:0] digi2, // part II of operand1
-    output [6:0] digi3, // part I of operand2
-    output [6:0] digi4  // part II of operand2
+    input rst_n         // Asynchronous reset active low
 );
 
 wire [63:0] IF_ID;
@@ -41,26 +33,6 @@ IF IF1(
 );
 
 // ID
-wire uart_signal;   // 1: there is new data from uart
-wire uart_flag;     // Select uart write target (register)
-wire uart_result_start;
-wire [7:0] uart_rx_data;
-wire [7:0] uart_result_data;
-
-UART UART1(
-    // Input
-    .clk         (clk),
-    .rst_n       (rst_n),
-    .UART_RX     (uart_rx),
-    .result_data (uart_result_data),
-    .result_start(uart_result_start),
-    // Output
-    .rx_data     (uart_rx_data),
-    .flag        (uart_flag),
-    .signal      (uart_signal),
-    .UART_TX     (uart_tx)
-);
-
 wire [4:0] EX_WriteRegister;
 wire [31:0] EX_ALUResult;
 
@@ -79,9 +51,6 @@ ID ID1(
     // Input
     .clk              (clk),
     .rst_n            (rst_n),
-    .uart_signal      (uart_signal),
-    .uart_flag        (uart_flag),
-    .uart_rx_data     (uart_rx_data),
     .irq              (irq),
     .instruction      (IF_ID[31:0]),
     .PC_plus4         (IF_ID[63:32]),
@@ -94,7 +63,6 @@ ID ID1(
     .MEM_WriteRegister(EX_MEM[68:64]),
     .MEM_ALUResult    (EX_MEM[63:32]),
     // Output
-    .uart_result_data (uart_result_data),
     .Z                (Z),
     .J                (J),
     .JR               (JR),
@@ -140,18 +108,6 @@ EX EX1(
     .EX_MEM           (EX_MEM)
 );
 
-wire [11:0] digi;
-
-digitube_scan SCAN1(
-    // Input
-    .digi_in  (digi),
-    // Output
-    .digi_out1(digi1),
-    .digi_out2(digi2),
-    .digi_out3(digi3),
-    .digi_out4(digi4)
-);
-
 MEM MEM1(
     // Input
     .clk              (clk),
@@ -165,9 +121,6 @@ MEM MEM1(
     .MEM_ALUResult    (EX_MEM[63:32]),
     .MEM_WriteData    (EX_MEM[31:0]),
     // Output
-    .result_start     (uart_result_start),
-    .led              (led),
-    .digi             (digi),
     .irqout           (irq),
     .MEM_WB           (MEM_WB)
 );
