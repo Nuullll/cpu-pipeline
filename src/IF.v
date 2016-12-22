@@ -34,7 +34,7 @@ assign flush_IF_ID = (|select_PC_next) & ~(|status);
 
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
-        PC <= 32'h8000_0000;
+        PC <= 32'h0000_0000;
         IF_ID <= 0;
     end else begin
         if(PC_IF_ID_Write) begin   // enable to write PC and IF_ID
