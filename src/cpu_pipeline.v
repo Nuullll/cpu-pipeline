@@ -2,7 +2,9 @@
 
 module cpu_pipeline (
     input clk,          // System Clock
-    input rst_n         // Asynchronous reset active low
+    input rst_n,        // Asynchronous reset active low
+
+    output [127:0] cipher_output
 );
 
 wire [63:0] IF_ID;
@@ -122,7 +124,10 @@ MEM MEM1(
     .MEM_WriteData    (EX_MEM[31:0]),
     // Output
     .irqout           (irq),
-    .MEM_WB           (MEM_WB)
+    .MEM_WB           (MEM_WB),
+
+    // Display
+    .cipher_output    (cipher_output)
 );
 
 endmodule

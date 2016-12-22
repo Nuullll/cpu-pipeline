@@ -8,7 +8,9 @@ module DataMemory(
     input MemWrite,
 
     output irqout,
-    output reg [31:0] Read_data
+    output reg [31:0] Read_data,
+
+    output [127:0] cipher_output
 );
     
     parameter RAM_SIZE = 512;
@@ -55,7 +57,8 @@ module DataMemory(
             end
         end
     end
-    
+
+    assign cipher_output = {RAM[0][1:0], RAM[1][1:0], RAM[2][1:0], RAM[3][1:0], RAM[4][1:0], RAM[5][1:0], RAM[6][1:0], RAM[7][1:0], RAM[8][1:0], RAM[9][1:0], RAM[10][1:0], RAM[11][1:0], RAM[12][1:0], RAM[13][1:0], RAM[14][1:0], RAM[15][1:0]};
 
     always @(negedge rst_n or posedge clk)
         if (~rst_n) begin
@@ -575,5 +578,4 @@ module DataMemory(
             RAM[Address[RAM_SIZE_BIT+1:2]] <= Write_data;
         end     
 
-            
 endmodule

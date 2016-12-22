@@ -17,7 +17,9 @@ module MEM (
 
     output irqout,
 
-    output reg [103:0] MEM_WB
+    output reg [103:0] MEM_WB,
+
+    output [127:0] cipher_output
 );
 
 wire [31:0] MEM_ReadData;
@@ -32,7 +34,9 @@ DataMemory D1(
     .MemWrite    (MEM_MemWrite),
     // Output
     .Read_data   (MEM_ReadData),
-    .irqout      (irqout)
+    .irqout      (irqout),
+
+    .cipher_output(cipher_output)
 );
 
 always @(posedge clk or negedge rst_n) begin
