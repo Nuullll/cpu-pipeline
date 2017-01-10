@@ -58,7 +58,7 @@ module DataMemory(
         end
     end
 
-    assign cipher_output = {RAM[0][1:0], RAM[1][1:0], RAM[2][1:0], RAM[3][1:0], RAM[4][1:0], RAM[5][1:0], RAM[6][1:0], RAM[7][1:0], RAM[8][1:0], RAM[9][1:0], RAM[10][1:0], RAM[11][1:0], RAM[12][1:0], RAM[13][1:0], RAM[14][1:0], RAM[15][1:0]};
+    assign cipher_output = {RAM[0][7:0], RAM[1][7:0], RAM[2][7:0], RAM[3][7:0], RAM[4][7:0], RAM[5][7:0], RAM[6][7:0], RAM[7][7:0], RAM[8][7:0], RAM[9][7:0], RAM[10][7:0], RAM[11][7:0], RAM[12][7:0], RAM[13][7:0], RAM[14][7:0], RAM[15][7:0]};
 
     always @(negedge rst_n or posedge clk)
         if (~rst_n) begin
